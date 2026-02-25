@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     const { marketplace, query } = req.query;
     
     if (!marketplace || !query) {
@@ -97,8 +97,8 @@ async function scrapeMudah(query) {
 function getDemoData(query, marketplace) {
     const basePrice = Math.floor(Math.random() * 500) + 200;
     return [
-        { title: `${query} - Good Condition`, price: 'RM' + basePrice, link: '#', marketplace: marketplace + ' (demo)' },
-        { title: `${query} - Like New`, price: 'RM' + (basePrice + 150), link: '#', marketplace: marketplace + ' (demo)' },
-        { title: `${query} - Bargain Price`, price: 'RM' + (basePrice - 50), link: '#', marketplace: marketplace + ' (demo)' }
+        { title: query + ' - Good Condition', price: 'RM' + basePrice, link: '#', marketplace: marketplace + ' (demo)' },
+        { title: query + ' - Like New', price: 'RM' + (basePrice + 150), link: '#', marketplace: marketplace + ' (demo)' },
+        { title: query + ' - Bargain Price', price: 'RM' + (basePrice - 50), link: '#', marketplace: marketplace + ' (demo)' }
     ];
 }
