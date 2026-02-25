@@ -1,7 +1,4 @@
 {
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/scrape.js" }
-  ],
   "functions": {
     "api/scrape.js": {
       "runtime": "@vercel/node@2",
