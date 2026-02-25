@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceHawk - Price Alert for Malaysia</title>
+    <style>
+        :root { --primary: #FF6B35; --secondary: #004E89; --bg: #0F0F0F; --card: #1A1A1A; --text: #FFFFFF; --text-muted: #888; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 30px 0; }
+        header h1 { font-size: 2rem; margin-bottom: 5px; }
+        header h1 span { color: var(--primary); }
+        header p { color: var(--text-muted); font-size: 0.9rem; }
+        .form-card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #252525; color: white; font-size: 16px; }
+        .form-group input:focus { outline: none; border-color: var(--primary); }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        
+        .results { margin-top: 20px; }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .results-header h3 { color: var(--text-muted); font-size: 0.9rem; }
+        
+        .result-item { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .result-info { flex: 1; }
+        .result-info h4 { font-size: 0.95rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+        .result-info a { color: var(--primary); text-decoration: none; font-size: 0.8rem; }
+        .result-price { text-align: right; }
+        .result-price .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
+        .result-price .market { color: var(--text-muted); font-size: 0.75rem; }
+        
+        .loading { text-align: center; padding: 30px; color: var(--text-muted); }
+        .loading-spinner { width: 30px; height: 30px; border: 3px solid #333; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .error { background: #3d1a1a; border: 1px solid #ff4757; border-radius: 10px; padding: 15px; color: #ff6b81; text-align: center; }
+        
+        .pro-banner { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; border-radius: 12px; padding: 18px; text-align: center; margin-top: 25px; }
+        .pro-banner .price { font-size: 1.5rem; font-weight: bold; }
+        .pro-banner p { font-size: 0.85rem; margin-bottom: 8px; }
+        
+        footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem; }
+        
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: #252525; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Price<span>Hawk</span> 🦅</h1>
+            <p>Check live prices on Malaysia marketplaces</p>
+        </header>
+        
+        <div class="form-card">
+            <div class="form-group">
+                <label>What do you want to search?</label>
+                <input type="text" id="searchItem" placeholder="e.g., RTX 3070, iPhone 14, PS5">
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="selectMarket('carousell')" id="tab-carousell">Carousell</button>
+                <button class="tab-btn" onclick="selectMarket('shopee')" id="tab-shopee">Shopee</button>
+                <button class="tab-btn" onclick="selectMarket('mudah')" id="tab-mudah">Mudah</button>
+            </div>
+            
+            <input type="hidden" id="marketplace" value="carousell">
+            
+            <button class="btn btn-primary" onclick="checkPrices()" id="checkBtn">Check Prices</button>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div class="pro-banner">
+            <p><strong>🚀 PriceHawk Pro</strong> - Auto price checks & WhatsApp alerts</p>
+            <p class="price">RM9.90/mo</p>
+            <button class="btn" style="background: black; color: white; font-size: 0.85rem; padding: 10px;" onclick="alert('Coming soon!')">Join Waitlist</button>
+        </div>
+        
+        <footer>
+            <p>Made by MojoClaw 🇲🇾 | Version 2.0</p>
+        </footer>
+    </div>
+    
+    <script>
+        let selectedMarket = 'carousell';
+        
+        function selectMarket(market) {
+            selectedMarket = market;
+            document.getElementById('marketplace').value = market;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + market).classList.add('active');
+        }
+        
+        async function checkPrices() {
+            const item = document.getElementById('searchItem').value.trim();
+            if (!item) { alert('Please enter what you want to search!'); return; }
+            
+            const btn = document.getElementById('checkBtn');
+            const results = document.getElementById('results');
+            
+            btn.disabled = true;
+            btn.textContent = 'Searching...';
+            results.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Searching for "' + item + '" on ' + selectedMarket + '...</div>';
+            
+            try {
+                const response = await fetch('/api/scrape?marketplace=' + selectedMarket + '&query=' + encodeURIComponent(item));
+                
+                if (!response.ok) throw new Error('Search failed');
+                
+                const data = await response.json();
+                
+                if (!data.results || data.results.length === 0) {
+                    results.innerHTML = '<div class="error">No results found. Try a different search term.</div>';
+                } else {
+                    let html = '<div class="results"><div class="results-header"><h3>Found ' + data.results.length + ' listings</h3></div>';
+                    
+                    data.results.slice(0, 10).forEach(r => {
+                        html += `
+                        <div class="result-item">
+                            <div class="result-info">
+                                <h4>${r.title}</h4>
+                                <a href="${r.link}" target="_blank">View Listing →</a>
+                            </div>
+                            <div class="result-price">
+                                <div class="price">${r.price}</div>
+                                <div class="market">${selectedMarket}</div>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    html += '</div>';
+                    results.innerHTML = html;
+                }
+            } catch (err) {
+                results.innerHTML = '<div class="error">Error: ' + err.message + '<br><br>Make sure you\'ve deployed the API functions on Vercel.</div>';
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Check Prices';
+        }
+    </script>
+</body>
+</html>

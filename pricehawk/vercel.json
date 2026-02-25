@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/scrape.js": {
+      "runtime": "vercel@2",
+      "maxDuration": 30
+    }
+  }
+}
