@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceHawk - Price Alert for Malaysia</title>
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --bg: #0F0F0F;
+            --card: #1A1A1A;
+            --text: #FFFFFF;
+            --text-muted: #888;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); min-height: 100vh; }
+        
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        
+        header { text-align: center; padding: 40px 0; }
+        header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        header h1 span { color: var(--primary); }
+        header p { color: var(--text-muted); }
+        
+        .hero { 
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .hero h2 { font-size: 1.8rem; margin-bottom: 10px; }
+        
+        .form-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #252525;
+            color: white;
+            font-size: 16px;
+        }
+        .form-group input:focus { outline: none; border-color: var(--primary); }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: scale(1.02); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--secondary); color: white; }
+        
+        .alerts-list { margin-top: 30px; }
+        .alert-item {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .alert-info h3 { font-size: 1.1rem; margin-bottom: 4px; }
+        .alert-info p { color: var(--text-muted); font-size: 0.9rem; }
+        .alert-price { text-align: right; }
+        .alert-price .target { color: var(--primary); font-weight: bold; font-size: 1.2rem; }
+        .alert-price .current { color: var(--text-muted); font-size: 0.85rem; }
+        
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-card .number { font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+        .stat-card .label { color: var(--text-muted); font-size: 0.85rem; }
+        
+        .pro-banner {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: black;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .pro-banner h3 { margin-bottom: 10px; }
+        .pro-banner .price { font-size: 2rem; font-weight: bold; }
+        
+        footer { text-align: center; padding: 40px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Price<span>Hawk</span> 🦅</h1>
+            <p>Track prices on Carousell, Shopee, Mudah & get alerted!</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="totalAlerts">0</div>
+                <div class="label">Active Alerts</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="savings">RM0</div>
+                <div class="label">Potential Savings</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="checks">0</div>
+                <div class="label">Checks Today</div>
+            </div>
+        </div>
+        
+        <div class="form-card">
+            <h3>➕ Add Price Alert</h3>
+            <br>
+            <div class="form-group">
+                <label>What do you want to track?</label>
+                <input type="text" id="itemName" placeholder="e.g., RTX 3070, iPhone 14, PS5">
+            </div>
+            <div class="form-group">
+                <label>Marketplace</label>
+                <select id="marketplace">
+                    <option value="carousell">Carousell</option>
+                    <option value="shopee">Shopee</option>
+                    <option value="mudah">Mudah</option>
+                    <option value="facebook">Facebook Marketplace</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Target Price (RM)</label>
+                <input type="number" id="targetPrice" placeholder="e.g., 1200">
+            </div>
+            <div class="form-group">
+                <label>Your Email</label>
+                <input type="email" id="userEmail" placeholder="you@example.com">
+            </div>
+            <button class="btn btn-primary" onclick="addAlert()">Create Alert</button>
+        </div>
+        
+        <div class="alerts-list" id="alertsList"></div>
+        
+        <div class="pro-banner">
+            <h3>🚀 PriceHawk Pro</h3>
+            <p>Unlimited alerts • WhatsApp alerts • Auto-posting</p>
+            <p class="price">RM9.90/mo</p>
+            <button class="btn" style="background: black; color: white; margin-top: 10px;" onclick="upgrade()">Upgrade Now</button>
+        </div>
+        
+        <footer>
+            <p>Made by MojoClaw 🇲🇾 | Version 1.0</p>
+        </footer>
+    </div>
+    
+    <script>
+        let alerts = JSON.parse(localStorage.getItem('pricehawk_alerts')) || [];
+        
+        function renderAlerts() {
+            const list = document.getElementById('alertsList');
+            if (alerts.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No alerts yet. Add one above!</p>';
+                return;
+            }
+            list.innerHTML = alerts.map((alert, index) => `
+                <div class="alert-item">
+                    <div class="alert-info">
+                        <h3>${alert.item}</h3>
+                        <p>${alert.marketplace} • Added ${alert.date}</p>
+                    </div>
+                    <div class="alert-price">
+                        <div class="target">RM${alert.target}</div>
+                        <div class="current">Target Price</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteAlert(${index})">✕</button>
+                </div>
+            `).join('');
+            updateStats();
+        }
+        
+        function addAlert() {
+            const item = document.getElementById('itemName').value;
+            const marketplace = document.getElementById('marketplace').value;
+            const target = document.getElementById('targetPrice').value;
+            const email = document.getElementById('userEmail').value;
+            
+            if (!item || !target) {
+                alert('Please fill in item name and target price!');
+                return;
+            }
+            
+            const newAlert = {
+                item,
+                marketplace,
+                target: parseInt(target),
+                email,
+                date: new Date().toLocaleDateString(),
+                currentPrice: null
+            };
+            
+            alerts.push(newAlert);
+            localStorage.setItem('pricehawk_alerts', JSON.stringify(alerts));
+            
+            document.getElementById('itemName').value = '';
+            document.getElementById('targetPrice').value = '';
+            
+            renderAlerts();
+        }
+        
+        function deleteAlert(index) {
+            alerts.splice(index, 1);
+            localStorage.setItem('pricehawk_alerts', JSON.stringify(alerts));
+            renderAlerts();
+        }
+        
+        function updateStats() {
+            document.getElementById('totalAlerts').textContent = alerts.length;
+            const savings = alerts.reduce((sum, a) => sum + (a.target * 0.1), 0);
+            document.getElementById('savings').textContent = 'RM' + Math.round(savings);
+            document.getElementById('checks').textContent = alerts.length * 3;
+        }
+        
+        function upgrade() {
+            alert('Coming soon! Contact @mojoclaw to join beta.');
+        }
+        
+        renderAlerts();
+    </script>
+</body>
+</html>
